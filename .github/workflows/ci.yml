@@ -80,7 +80,7 @@ jobs:
       - name: Build image
         run: docker build -f deploy/docker/Dockerfile -t envelope:ci .
       - name: Scan image
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: envelope:ci
           severity: "CRITICAL,HIGH"
