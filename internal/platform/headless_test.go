@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/platform"
+	"github.com/envelope-mx/envelope/internal/platform"
 )
 
 func TestHeadlessAppShutdownWaitsForLoopToReturn(t *testing.T) {

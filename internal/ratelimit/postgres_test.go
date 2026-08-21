@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/ratelimit"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/ratelimit"
 )
 
 func newLimiter(t *testing.T) *ratelimit.PostgresLimiter {

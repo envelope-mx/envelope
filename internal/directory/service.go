@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/isaiahiroko/envelope/internal/kms"
+	"github.com/envelope-mx/envelope/internal/kms"
 )
 
 // Service is the Postgres-backed Directory implementation (TRD FR-1.x).
@@ -325,7 +325,7 @@ func (s *Service) UpdateVhostPolicy(ctx context.Context, id string, policy Vhost
 }
 
 // RotateDKIMKeys re-encrypts every stored DKIM private key from oldEnc to
-// newEnc — the DKIM half of docs/RUNBOOK.md §4.7's "no rotation tool" gap,
+// newEnc — the DKIM half of index/RUNBOOK.md §4.7's "no rotation tool" gap,
 // closed (the webhook-secret half is webhook.PostgresStore.RotateSecrets).
 // Must run with no live app process reading/writing dkim_keys under the old
 // key concurrently — a concurrent decrypt under the old key for a row this

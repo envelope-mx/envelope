@@ -9,10 +9,10 @@ import (
 	gosasl "github.com/emersion/go-sasl"
 	gosmtp "github.com/emersion/go-smtp"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/platform"
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
-	"github.com/isaiahiroko/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/platform"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
+	"github.com/envelope-mx/envelope/internal/storage"
 )
 
 // TestInboundPreservesListUnsubscribeHeaders is NFR-COMP-3's empirical

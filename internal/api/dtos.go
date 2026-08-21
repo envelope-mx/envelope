@@ -123,7 +123,7 @@ type ListWebhookAttemptsDto struct {
 }
 
 // RedriveWebhookAttemptDto identifies the event to manually redrive
-// (docs/RUNBOOK.md §4.3) — ID is the subscription (matching every other
+// (index/RUNBOOK.md §4.3) — ID is the subscription (matching every other
 // webhook DTO's convention), EventID is the specific dead-lettered event.
 type RedriveWebhookAttemptDto struct {
 	Authorization string `header:"Authorization"`

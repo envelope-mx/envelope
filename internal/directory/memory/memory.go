@@ -2,7 +2,7 @@
 // tests that don't need a real database. It was Phase 2's production
 // Directory; Phase 3 demoted it here once internal/directory.Service
 // (Postgres-backed) became the real implementation — nothing in
-// production wiring uses this package (docs/ENVELOPE.md Phase 3 goal:
+// production wiring uses this package (index/ENVELOPE.md Phase 3 goal:
 // "nothing after this phase should touch an in-memory or non-Postgres
 // path in production"). Credentials are held in plaintext deliberately:
 // this type is throwaway and never persisted to disk.
@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/directory"
 )
 
 // Directory is an in-memory directory.Directory.

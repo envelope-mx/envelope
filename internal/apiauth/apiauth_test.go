@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/apiauth"
 )
 
 func TestGenerateTokenRoundTripsThroughHash(t *testing.T) {

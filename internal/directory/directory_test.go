@@ -3,7 +3,7 @@ package directory_test
 import (
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/directory"
 )
 
 func TestParseAddress(t *testing.T) {

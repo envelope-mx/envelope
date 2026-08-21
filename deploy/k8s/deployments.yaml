@@ -2,7 +2,7 @@
 # --roles value (cmd/envelope/main.go's allRoles) so each role scales
 # independently in the Kubernetes case. webhook dispatch has no
 # Deployment of its own — it's a background instance bundled into the
-# `api` role's process (see docs/ENVELOPE.md Phase 5's role-mapping note),
+# `api` role's process (see index/ENVELOPE.md Phase 5's role-mapping note),
 # so scaling envelope-api scales webhook delivery capacity with it.
 #
 # replicas: 2 encodes NFR-AV-1 (no single-role replica is a single point
@@ -248,7 +248,7 @@ spec:
             requests: { cpu: 100m, memory: 128Mi }
             limits: { memory: 256Mi }
 ---
-# Outbound deliverer (TRD §4 role 4, docs/ENVELOPE.md Phase 5) — headless,
+# Outbound deliverer (TRD §4 role 4, index/ENVELOPE.md Phase 5) — headless,
 # no protocol listener, so readiness/liveness use the metrics endpoint
 # (an internal/platform.HeadlessApp instance responding here is as close
 # to "this role's background loop is alive" as there is to probe).

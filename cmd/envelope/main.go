@@ -3,7 +3,7 @@
 // platform plus the custom smtp-inbound, smtp-submission, and imap
 // platforms, and the headless deliverer/webhook-dispatcher background
 // loops. --roles selects which subset to run, so a single binary can be
-// deployed per-role (TRD §4, §8 M1; docs/ENVELOPE.md Phase 2).
+// deployed per-role (TRD §4, §8 M1; index/ENVELOPE.md Phase 2).
 //
 // Every role shares one Postgres connection (Phase 3, TRD M2): the
 // Directory, storage.Store, and queue.Backend are all Postgres-backed, so
@@ -34,29 +34,29 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	gormlib "gorm.io/gorm"
 
-	"github.com/isaiahiroko/envelope/internal/acme"
-	envapi "github.com/isaiahiroko/envelope/internal/api"
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/app"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	envdb "github.com/isaiahiroko/envelope/internal/db"
-	"github.com/isaiahiroko/envelope/internal/deliverer"
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/filter"
-	"github.com/isaiahiroko/envelope/internal/filter/rspamd"
-	"github.com/isaiahiroko/envelope/internal/internalapi"
-	"github.com/isaiahiroko/envelope/internal/kms"
-	"github.com/isaiahiroko/envelope/internal/logging"
-	"github.com/isaiahiroko/envelope/internal/platform"
-	envimap "github.com/isaiahiroko/envelope/internal/platform/imap"
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/ratelimit"
-	"github.com/isaiahiroko/envelope/internal/retention"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/migrations"
-	storagepostgres "github.com/isaiahiroko/envelope/internal/storage/postgres"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/acme"
+	envapi "github.com/envelope-mx/envelope/internal/api"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/app"
+	"github.com/envelope-mx/envelope/internal/audit"
+	envdb "github.com/envelope-mx/envelope/internal/db"
+	"github.com/envelope-mx/envelope/internal/deliverer"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter/rspamd"
+	"github.com/envelope-mx/envelope/internal/internalapi"
+	"github.com/envelope-mx/envelope/internal/kms"
+	"github.com/envelope-mx/envelope/internal/logging"
+	"github.com/envelope-mx/envelope/internal/platform"
+	envimap "github.com/envelope-mx/envelope/internal/platform/imap"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/ratelimit"
+	"github.com/envelope-mx/envelope/internal/retention"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/migrations"
+	storagepostgres "github.com/envelope-mx/envelope/internal/storage/postgres"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 const (
@@ -87,7 +87,7 @@ func main() {
 		"comma-separated subset of roles to run: "+strings.Join(allRoles, ", "))
 	rotateMasterKeyTo := flag.String("rotate-master-key", "",
 		"re-encrypt every DKIM key and webhook secret from ENVELOPE_MASTER_KEY to this base64-encoded "+
-			"key, then exit without starting any role — see docs/RUNBOOK.md §4.7. Every other process "+
+			"key, then exit without starting any role — see index/RUNBOOK.md §4.7. Every other process "+
 			"pointed at this database must be stopped first.")
 	flag.Parse()
 
@@ -495,7 +495,7 @@ func buildInstances(selected map[string]bool, conn *gormlib.DB) ([]*types.Instan
 			},
 			// FR-2.5: message.received, fired here for the first time
 			// (Phase 4 built the verdict but deliberately left this call
-			// site unwired — docs/ENVELOPE.md Phase 4/5).
+			// site unwired — index/ENVELOPE.md Phase 4/5).
 			Webhooks: inboundWebhooks,
 			// FR-2.3: shared, cross-replica rate limiting via Postgres (see
 			// internal/ratelimit.PostgresLimiter's doc for why not Goose's
@@ -703,7 +703,7 @@ var (
 )
 
 // apiInitializers overrides config.AppConfigPath so config lives under
-// ./config (per docs/ENVELOPE.md's repo layout) instead of Goose's default
+// ./config (per index/ENVELOPE.md's repo layout) instead of Goose's default
 // of the whole app root, and registers the shared *directory.Service,
 // storage.Store, webhook.Store, apiauth.Store, audit.Store, AdminToken,
 // RateLimitPolicy, RedrivePolicy, queue.Backend, webhook.Enqueuer, and
@@ -787,7 +787,7 @@ func adminTokenFromEnv() *envapi.AdminToken {
 	return &envapi.AdminToken{Value: raw}
 }
 
-// rotateMasterKey implements --rotate-master-key: docs/RUNBOOK.md §4.7's
+// rotateMasterKey implements --rotate-master-key: index/RUNBOOK.md §4.7's
 // previously-missing "re-encrypt everything under a new key" tool. Reads
 // the current key from ENVELOPE_MASTER_KEY (same as normal boot) and the
 // target key from newKeyB64 (the flag's value), re-encrypts every DKIM

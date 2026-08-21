@@ -16,7 +16,7 @@ import (
 	"github.com/awesome-goose/goose/modules/sql"
 	"gorm.io/gorm"
 
-	"github.com/isaiahiroko/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage"
 )
 
 // messageRow is the messages table (TRD §7). Body lives inline here

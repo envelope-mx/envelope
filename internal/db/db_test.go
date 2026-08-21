@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	envdb "github.com/isaiahiroko/envelope/internal/db"
+	envdb "github.com/envelope-mx/envelope/internal/db"
 )
 
 // clearEnv resets every ENVELOPE_DB_* var this file touches, restoring the

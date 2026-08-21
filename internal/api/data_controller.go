@@ -10,11 +10,11 @@ import (
 	"github.com/awesome-goose/goose/io/output"
 	"github.com/awesome-goose/goose/types"
 
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // DataController implements NFR-COMP-2: data export/deletion on tenant
@@ -43,7 +43,7 @@ type DataController struct {
 // an arbitrarily large mailbox. A streaming/paginated export would be the
 // natural follow-up if a real tenant's volume makes this a problem, the
 // same "don't fix a problem that hasn't been measured yet" judgment
-// docs/ENVELOPE.md's Phase 6 section already applied to the other list
+// index/ENVELOPE.md's Phase 6 section already applied to the other list
 // endpoints' pagination gap.
 func (c *DataController) Export(dto *ExportVhostDataDto) types.Output {
 	ctx := context.Background()

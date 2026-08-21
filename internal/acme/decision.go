@@ -23,7 +23,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/directory"
 )
 
 // DecisionFunc returns a certmagic OnDemandConfig.DecisionFunc that only

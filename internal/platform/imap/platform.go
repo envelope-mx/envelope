@@ -9,7 +9,7 @@ import (
 
 	"github.com/awesome-goose/goose/types"
 
-	"github.com/isaiahiroko/envelope/internal/platform"
+	"github.com/envelope-mx/envelope/internal/platform"
 )
 
 // Platform is a custom Goose platform (TRD §2.1) booting a go-imap server

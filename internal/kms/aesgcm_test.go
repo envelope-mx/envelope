@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/kms"
+	"github.com/envelope-mx/envelope/internal/kms"
 )
 
 func testKey() []byte {

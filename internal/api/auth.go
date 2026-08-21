@@ -8,9 +8,9 @@ import (
 	"github.com/awesome-goose/goose/io/output"
 	"github.com/awesome-goose/goose/types"
 
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	"github.com/isaiahiroko/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/directory"
 )
 
 // AdminToken is the bootstrap credential (ENVELOPE_API_ADMIN_TOKEN, wired

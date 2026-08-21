@@ -6,7 +6,7 @@ package app
 import (
 	"github.com/awesome-goose/goose/types"
 
-	"github.com/isaiahiroko/envelope/internal/api"
+	"github.com/envelope-mx/envelope/internal/api"
 )
 
 type AppModule struct{}

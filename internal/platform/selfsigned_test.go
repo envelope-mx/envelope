@@ -5,7 +5,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/platform"
+	"github.com/envelope-mx/envelope/internal/platform"
 )
 
 func TestSelfSignedTLSConfigHandshakes(t *testing.T) {

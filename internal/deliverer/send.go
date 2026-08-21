@@ -11,7 +11,7 @@ import (
 
 	gosmtp "github.com/emersion/go-smtp"
 
-	"github.com/isaiahiroko/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/queue"
 )
 
 // lookupMX resolves domain's MX hosts, sorted by preference (lowest

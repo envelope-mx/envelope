@@ -12,7 +12,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage"
 )
 
 const (

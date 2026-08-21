@@ -10,9 +10,9 @@ import (
 	gosasl "github.com/emersion/go-sasl"
 	gosmtp "github.com/emersion/go-smtp"
 
-	"github.com/isaiahiroko/envelope/internal/filter"
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/filter"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // fakeEnqueuer records every webhook.Enqueuer.Enqueue call, standing in

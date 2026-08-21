@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 func TestCreateAndListSubscriptions(t *testing.T) {

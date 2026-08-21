@@ -18,13 +18,13 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/ratelimit"
-	"github.com/isaiahiroko/envelope/internal/storage/postgres"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/ratelimit"
+	"github.com/envelope-mx/envelope/internal/storage/postgres"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // All migrates every table Envelope's Postgres-backed components own.

@@ -5,8 +5,8 @@ package imap
 import (
 	"crypto/tls"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/storage"
 )
 
 // Config configures an imap Platform instance.

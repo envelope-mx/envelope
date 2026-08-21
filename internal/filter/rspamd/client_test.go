@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/filter/rspamd"
+	"github.com/envelope-mx/envelope/internal/filter/rspamd"
 )
 
 func TestCheckParsesVerdict(t *testing.T) {

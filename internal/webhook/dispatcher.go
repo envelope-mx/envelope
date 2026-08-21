@@ -13,9 +13,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/logging"
-	"github.com/isaiahiroko/envelope/internal/metrics"
-	"github.com/isaiahiroko/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/logging"
+	"github.com/envelope-mx/envelope/internal/metrics"
+	"github.com/envelope-mx/envelope/internal/queue"
 )
 
 // Enqueuer is the narrow surface callers on a request/connection-handling
@@ -29,7 +29,7 @@ type Enqueuer interface {
 }
 
 // Redriver is the narrow surface WebhookController needs to manually retry
-// a dead-lettered delivery (docs/RUNBOOK.md §4.3's previously-missing
+// a dead-lettered delivery (index/RUNBOOK.md §4.3's previously-missing
 // "retry now" operation) — kept separate from Enqueuer/*Dispatcher the same
 // way Enqueuer itself is kept separate from *Dispatcher: the API needs
 // exactly this, not the ability to run Enqueue or the delivery loop.
@@ -137,7 +137,7 @@ func (d *Dispatcher) Enqueue(ctx context.Context, vhost, eventType string, paylo
 // possible — see DeliveryAttempt's doc) and the subscription's *current*
 // URL/secret rather than whatever they were at the original attempt's
 // time, in case the tenant has since edited them. Closes
-// docs/RUNBOOK.md §4.3's "a dead-lettered event has no retry now endpoint"
+// index/RUNBOOK.md §4.3's "a dead-lettered event has no retry now endpoint"
 // gap. Returns ErrNotFound if subscriptionID doesn't belong to vhost, or if
 // eventID was never attempted against it; returns a plain error if the
 // subscription is disabled (there is nowhere to redrive to).

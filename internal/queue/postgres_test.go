@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/queue"
 )
 
 func newPostgresBackend(t *testing.T) *queue.PostgresBackend {

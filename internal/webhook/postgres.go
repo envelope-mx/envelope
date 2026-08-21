@@ -11,7 +11,7 @@ import (
 	"github.com/awesome-goose/goose/modules/sql"
 	"gorm.io/gorm"
 
-	"github.com/isaiahiroko/envelope/internal/kms"
+	"github.com/envelope-mx/envelope/internal/kms"
 )
 
 // DefaultPageSize/MaxPageSize bound ListSubscriptionsPage/ListAttemptsPage
@@ -172,7 +172,7 @@ func (p *PostgresStore) decryptSecret(stored string) (string, error) {
 }
 
 // RotateSecrets re-encrypts every subscription's signing secret from
-// oldEnc to newEnc — the webhook half of docs/RUNBOOK.md §4.7's key
+// oldEnc to newEnc — the webhook half of index/RUNBOOK.md §4.7's key
 // rotation (see directory.Service.RotateDKIMKeys for the DKIM half; the
 // resumability and no-concurrent-app-process caveats there apply
 // identically here). See cmd/envelope/main.go's --rotate-master-key.

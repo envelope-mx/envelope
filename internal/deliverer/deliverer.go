@@ -19,12 +19,12 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/logging"
-	"github.com/isaiahiroko/envelope/internal/metrics"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/logging"
+	"github.com/envelope-mx/envelope/internal/metrics"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // Defaults mirror internal/webhook.Dispatcher's — both are "retry an

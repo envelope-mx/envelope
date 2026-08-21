@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/audit"
 )
 
 func TestMemoryStoreRecordAndList(t *testing.T) {

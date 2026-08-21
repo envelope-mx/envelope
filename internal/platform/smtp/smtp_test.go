@@ -11,15 +11,15 @@ import (
 	gosasl "github.com/emersion/go-sasl"
 	gosmtp "github.com/emersion/go-smtp"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
-	"github.com/isaiahiroko/envelope/internal/filter"
-	"github.com/isaiahiroko/envelope/internal/filter/rspamd"
-	"github.com/isaiahiroko/envelope/internal/platform"
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
+	"github.com/envelope-mx/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter/rspamd"
+	"github.com/envelope-mx/envelope/internal/platform"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
 )
 
 // noRecordResolver answers every DNS lookup with "not found", so

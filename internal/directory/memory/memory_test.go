@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
 )
 
 func TestAddVhostAndVhostActive(t *testing.T) {

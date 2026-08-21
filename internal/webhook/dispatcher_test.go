@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 func newTestDispatcher(store *webhook.MemoryStore, q *webhook.MemoryEventQueue) *webhook.Dispatcher {
@@ -238,7 +238,7 @@ func TestDispatcherDeadLettersAfterMaxAttempts(t *testing.T) {
 	}
 }
 
-// TestDispatcherRedriveRetriesDeadLetteredEvent is docs/RUNBOOK.md §4.3's
+// TestDispatcherRedriveRetriesDeadLetteredEvent is index/RUNBOOK.md §4.3's
 // closed gap: an event that dead-lettered after MaxAttempts can be
 // manually redriven and, if the endpoint recovers, delivered.
 func TestDispatcherRedriveRetriesDeadLetteredEvent(t *testing.T) {

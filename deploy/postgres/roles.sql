@@ -1,5 +1,5 @@
 -- Least-privilege Postgres roles per Envelope service role (NFR-SEC-4/
--- SEC-5, docs/ENVELOPE.md Phase 6). Complements deploy/k8s/networkpolicy.yaml:
+-- SEC-5, index/ENVELOPE.md Phase 6). Complements deploy/k8s/networkpolicy.yaml:
 -- network segmentation limits *who can open a connection at all*; this
 -- limits *what a given connection can do once opened*, so a compromised
 -- smtp-inbound process (the one most exposed to the public internet)

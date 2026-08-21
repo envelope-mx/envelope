@@ -15,10 +15,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/logging"
-	"github.com/isaiahiroko/envelope/internal/metrics"
-	"github.com/isaiahiroko/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/logging"
+	"github.com/envelope-mx/envelope/internal/metrics"
+	"github.com/envelope-mx/envelope/internal/storage"
 )
 
 // DefaultRetentionDays applies to any vhost with RetentionDays <= 0 (the
@@ -103,7 +103,7 @@ func (p *Purger) Run(ctx context.Context) error {
 }
 
 // Sweep runs one full pass over every vhost. Exported so callers (the
-// "run the retention sweep now" operational task in docs/RUNBOOK.md, and
+// "run the retention sweep now" operational task in index/RUNBOOK.md, and
 // tests) don't have to wait out a real interval to trigger one.
 func (p *Purger) Sweep(ctx context.Context) {
 	// One correlation ID per sweep (NFR-OBS-2), not per deleted message —

@@ -10,8 +10,8 @@ import (
 
 	"github.com/emersion/go-msgauth/dmarc"
 
-	"github.com/isaiahiroko/envelope/internal/filter/rspamd"
-	"github.com/isaiahiroko/envelope/internal/metrics"
+	"github.com/envelope-mx/envelope/internal/filter/rspamd"
+	"github.com/envelope-mx/envelope/internal/metrics"
 )
 
 // Verdict is the outcome of the FR-2.4/2.5 pipeline: what the SMTP session

@@ -3,8 +3,8 @@ package migrations_test
 import (
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/storage/migrations"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/storage/migrations"
 )
 
 func TestAllIsIdempotent(t *testing.T) {

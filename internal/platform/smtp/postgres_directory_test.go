@@ -8,12 +8,12 @@ import (
 	gosmtp "github.com/emersion/go-smtp"
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/kms"
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/kms"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
 )
 
 // TestInboundRejectsDeactivatedVhostPostgres is the FR-1.4 test against

@@ -46,7 +46,7 @@ type DeliveryAttempt struct {
 	// attempt (not just the first) so Dispatcher.Redrive can rebuild a
 	// fresh DeliveryJob for a dead-lettered event without needing the
 	// original DeliveryJob row, which EventQueue.Complete already removed
-	// by the time an operator asks for a manual redrive (docs/RUNBOOK.md
+	// by the time an operator asks for a manual redrive (index/RUNBOOK.md
 	// §4.3).
 	Payload   []byte
 	EventType string

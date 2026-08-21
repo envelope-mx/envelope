@@ -1,6 +1,6 @@
 // Package integration holds cross-package tests that exercise more than
 // one of Envelope's custom Goose platforms together. It exists because
-// docs/ENVELOPE.md Phase 2's exit criteria requires proving a real,
+// index/ENVELOPE.md Phase 2's exit criteria requires proving a real,
 // end-to-end path — authenticate to submission, DKIM-sign, queue, deliver
 // to inbound, retrieve via IMAP — not just each protocol server in
 // isolation (that per-package coverage already lives in
@@ -22,15 +22,15 @@ import (
 	goimap "github.com/emersion/go-imap/v2"
 	"github.com/emersion/go-imap/v2/imapclient"
 
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
-	"github.com/isaiahiroko/envelope/internal/filter"
-	"github.com/isaiahiroko/envelope/internal/filter/rspamd"
-	"github.com/isaiahiroko/envelope/internal/platform"
-	envimap "github.com/isaiahiroko/envelope/internal/platform/imap"
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
+	"github.com/envelope-mx/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter/rspamd"
+	"github.com/envelope-mx/envelope/internal/platform"
+	envimap "github.com/envelope-mx/envelope/internal/platform/imap"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
 )
 
 // noRecordResolver and acceptingRspamd stand in for real DNS/rspamd so

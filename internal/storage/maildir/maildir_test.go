@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
 )
 
 func TestWriteCreatesStandardLayout(t *testing.T) {

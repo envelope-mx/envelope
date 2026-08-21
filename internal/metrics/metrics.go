@@ -44,7 +44,7 @@ var (
 	// Not the same thing as TRD §6.1's "time from enqueue to first
 	// delivery attempt" target, which would need an enqueue timestamp
 	// queue.Job doesn't currently carry; that's a named, tracked gap
-	// (docs/ENVELOPE.md Phase 6), not silently approximated by this
+	// (index/ENVELOPE.md Phase 6), not silently approximated by this
 	// metric under the same name.
 	DeliveryLatencySeconds = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "envelope_delivery_latency_seconds",

@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 func TestWebhookSubscriptionCRUDAndAttempts(t *testing.T) {
@@ -112,7 +112,7 @@ func TestWebhookSubscriptionCRUDAndAttempts(t *testing.T) {
 	}
 }
 
-// TestWebhookRedriveAttempt is docs/RUNBOOK.md §4.3's closed gap, exercised
+// TestWebhookRedriveAttempt is index/RUNBOOK.md §4.3's closed gap, exercised
 // end to end over real HTTP: a dead-lettered event can be manually
 // redriven via POST .../attempts/:eventId/redrive and, once the endpoint
 // recovers, delivered.

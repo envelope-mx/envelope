@@ -6,8 +6,8 @@ import (
 
 	"github.com/caddyserver/certmagic"
 
-	"github.com/isaiahiroko/envelope/internal/acme"
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
+	"github.com/envelope-mx/envelope/internal/acme"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
 )
 
 func TestDecisionFuncSatisfiesCertmagicShape(t *testing.T) {

@@ -3,11 +3,15 @@
 Self-hosted, API-first, multi-tenant email platform, built on the
 [Goose framework](https://github.com/awesome-goose/goose).
 
-See [docs/PITCH.md](docs/PITCH.md), [docs/PRD.md](docs/PRD.md),
-[docs/TRD.md](docs/TRD.md) for product/technical context,
-[docs/ENVELOPE.md](docs/ENVELOPE.md) for the phased implementation plan
-this repository follows, and [docs/RUNBOOK.md](docs/RUNBOOK.md) for
-on-call operations.
+See [PITCH.md](https://github.com/envelope-mx/index/blob/main/PITCH.md),
+[PRD.md](https://github.com/envelope-mx/index/blob/main/PRD.md),
+[TRD.md](https://github.com/envelope-mx/index/blob/main/TRD.md) for
+product/technical context,
+[ENVELOPE.md](https://github.com/envelope-mx/index/blob/main/ENVELOPE.md)
+for the phased implementation plan this repository follows, and
+[RUNBOOK.md](https://github.com/envelope-mx/index/blob/main/RUNBOOK.md)
+for on-call operations — all maintained in the
+[envelope-mx/index](https://github.com/envelope-mx/index) repository.
 
 ## Development
 
@@ -86,7 +90,7 @@ go run ./cmd/envelope --roles=api
 `--rotate-master-key=<new-base64-key>` is a separate, one-shot maintenance
 mode (not a role): re-encrypts every DKIM key and webhook secret from
 `ENVELOPE_MASTER_KEY` to the given key, then exits — every other process
-against that database must be stopped first. See `docs/RUNBOOK.md` §4.7
+against that database must be stopped first. See [RUNBOOK.md](https://github.com/envelope-mx/index/blob/main/RUNBOOK.md) §4.7
 for the full procedure.
 
 TLS for smtp-inbound/smtp-submission/imap defaults to a self-signed
@@ -101,19 +105,19 @@ for local dev, which is why self-signed stays the default.
 Inbound mail's spam-score signal comes from an rspamd sidecar
 (`ENVELOPE_RSPAMD_URL`, see `.env.example`) — not required for local dev:
 FR-2.6 fails open when it's unreachable, quarantining rather than
-blocking mail (`internal/filter`, `docs/ENVELOPE.md` Phase 4).
+blocking mail (`internal/filter`, [ENVELOPE.md](https://github.com/envelope-mx/index/blob/main/ENVELOPE.md) Phase 4).
 
 Outbound delivery (`--roles=deliverer`, `internal/deliverer`) does real
 MX lookups against real DNS and connects to real remote MTAs — no sidecar
 or stub involved, so sending to a real domain from local dev really
 attempts real internet delivery. `internal/deliverer`'s own test suite
 covers the retry/bounce/concurrency logic against a local fake MTA
-instead, for fully offline, deterministic testing (`docs/ENVELOPE.md`
+instead, for fully offline, deterministic testing ([ENVELOPE.md](https://github.com/envelope-mx/index/blob/main/ENVELOPE.md)
 Phase 5).
 
 Every process exposes Prometheus metrics at `:9090/metrics`
 (`ENVELOPE_METRICS_ADDR`, NFR-OBS-1) regardless of `--roles` — the
-`envelope_*` set named in `docs/TRD.md` §6.5.
+`envelope_*` set named in [TRD.md](https://github.com/envelope-mx/index/blob/main/TRD.md) §6.5.
 
 ### Tests
 
@@ -147,8 +151,8 @@ truncated per test.
 
 CI (`.github/workflows/ci.yml`) also runs `govulncheck` and Trivy
 (against the actual built `deploy/docker/Dockerfile` image, not just the
-source tree) on every push — see `docs/TRD.md` §10 R5 and
-`docs/ENVELOPE.md` Phase 6 for what those have already caught here.
+source tree) on every push — see [TRD.md](https://github.com/envelope-mx/index/blob/main/TRD.md) §10 R5 and
+[ENVELOPE.md](https://github.com/envelope-mx/index/blob/main/ENVELOPE.md) Phase 6 for what those have already caught here.
 
 ## Docker
 
@@ -190,12 +194,20 @@ all — is available via `internal/internalapi`: set that Deployment's
 at the `api` role's `containerPort: 8081`, `envelope-to-internal-api` in
 `networkpolicy.yaml`) instead of `ENVELOPE_DB_*`; `api` needs every
 activated role's token to authorize incoming calls. See
-`docs/RUNBOOK.md` §5 for the full activation procedure and how to confirm
+[RUNBOOK.md](https://github.com/envelope-mx/index/blob/main/RUNBOOK.md) §5 for the full activation procedure and how to confirm
 it took effect. These manifests have since been applied against a real
-(single-node) Kubernetes cluster — see `docs/ENVELOPE.md` Phase 7 for
+(single-node) Kubernetes cluster — see [ENVELOPE.md](https://github.com/envelope-mx/index/blob/main/ENVELOPE.md) Phase 7 for
 what that found, including a real Dockerfile bug (`runAsNonRoot` +
 `USER nonroot:nonroot` failed every pod outright — fixed) and a real
 `NetworkPolicy` gap (`:9090` metrics had no allow rule — fixed) that only
 surfaced by actually deploying to a cluster instead of reading the YAML.
 Multi-*node* behavior (surviving a node failure, not just a pod) is still
 unverified — that needs ≥2 real machines.
+
+## Related repositories
+
+| Repository | Description |
+| --- | --- |
+| [envelope-mx/index](https://github.com/envelope-mx/index) | Product/technical planning docs (pitch, PRD, TRD, implementation plan, deployment, integration, runbook) |
+| [envelope-mx/docs](https://github.com/envelope-mx/docs) | Public documentation site generator and content |
+| [envelope-mx/envelope-mx.github.io](https://github.com/envelope-mx/envelope-mx.github.io) | GitHub Pages entry point that redirects to the docs site |

@@ -17,15 +17,15 @@ import (
 	"github.com/awesome-goose/goose/types"
 	"github.com/google/uuid"
 
-	envapi "github.com/isaiahiroko/envelope/internal/api"
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/app"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	envapi "github.com/envelope-mx/envelope/internal/api"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/app"
+	"github.com/envelope-mx/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // startAPIForMessageTest is startAPIWithWebhooks plus returning the

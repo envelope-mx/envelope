@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/postgres"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/postgres"
 )
 
 func newBackend(t *testing.T) *postgres.Backend {

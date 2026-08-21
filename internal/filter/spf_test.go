@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter"
 )
 
 // blitiri.com.ar/go/spf's CheckHostWithSender documents that its error

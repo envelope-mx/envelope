@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
-	"github.com/isaiahiroko/envelope/internal/internalapi"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
+	"github.com/envelope-mx/envelope/internal/internalapi"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
 )
 
 // fakeRateLimiter records every call and returns a canned answer — a real

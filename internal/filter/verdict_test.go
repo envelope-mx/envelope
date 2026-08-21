@@ -14,9 +14,9 @@ import (
 	"github.com/emersion/go-msgauth/dkim"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
-	"github.com/isaiahiroko/envelope/internal/filter"
-	"github.com/isaiahiroko/envelope/internal/filter/rspamd"
-	"github.com/isaiahiroko/envelope/internal/metrics"
+	"github.com/envelope-mx/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter/rspamd"
+	"github.com/envelope-mx/envelope/internal/metrics"
 )
 
 type fakeRspamd struct {

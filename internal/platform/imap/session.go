@@ -8,8 +8,8 @@ import (
 	goimap "github.com/emersion/go-imap/v2"
 	"github.com/emersion/go-imap/v2/imapserver"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/storage"
 )
 
 // allFlags is advertised as both the mailbox's defined flags and its
@@ -24,7 +24,7 @@ var allFlags = []goimap.Flag{
 // FR-7.x only requires login, viewing messages, and flag mutation through
 // storage.Store (FR-7.1/7.2/7.3) — folder management, search, and copy
 // aren't part of any FR-7.x requirement and are deferred until real usage
-// needs them (see docs/ENVELOPE.md Phase 2 scope).
+// needs them (see index/ENVELOPE.md Phase 2 scope).
 func errNotSupported(command string) error {
 	return &goimap.Error{
 		Type: goimap.StatusResponseTypeNo,

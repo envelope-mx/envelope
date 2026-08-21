@@ -10,14 +10,14 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/storage/postgres"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/storage/postgres"
 )
 
 // TestScaleMessageBodyVolume is TRD R3's still-open literal question,
 // finally measured: "an actual number for the messages table specifically
 // (body storage volume, FR-4.4), which needs a dedicated test with
-// realistic body sizes at real volume (many GB)" (docs/TRD.md §10 R3).
+// realistic body sizes at real volume (many GB)" (index/TRD.md §10 R3).
 // TestScaleTo100kVhosts already answered the adjacent §6.1 vhost-count
 // target; this is the messages-table half that was explicitly left
 // unresolved by that pass.

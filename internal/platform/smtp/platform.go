@@ -9,7 +9,7 @@ import (
 
 	"github.com/awesome-goose/goose/types"
 
-	"github.com/isaiahiroko/envelope/internal/platform"
+	"github.com/envelope-mx/envelope/internal/platform"
 )
 
 // defaultTimeout bounds how long the server waits for a peer between

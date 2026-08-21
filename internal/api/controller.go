@@ -7,9 +7,9 @@ import (
 	"github.com/awesome-goose/goose/io/output"
 	"github.com/awesome-goose/goose/types"
 
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	"github.com/isaiahiroko/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/directory"
 )
 
 // VhostController is the vhost/mailbox management API (FR-1.1, FR-1.4,

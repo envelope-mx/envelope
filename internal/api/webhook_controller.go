@@ -8,10 +8,10 @@ import (
 	"github.com/awesome-goose/goose/types"
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/apiauth"
-	"github.com/isaiahiroko/envelope/internal/audit"
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/apiauth"
+	"github.com/envelope-mx/envelope/internal/audit"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // WebhookController is the webhook subscription management (FR-6.5) and
@@ -188,7 +188,7 @@ func (c *WebhookController) ListAttempts(dto *ListWebhookAttemptsDto) types.Outp
 	return output.SuccessWithMeta("", views, map[string]any{"nextCursor": nextCursor})
 }
 
-// RedriveAttempt manually retries a dead-lettered event (docs/RUNBOOK.md
+// RedriveAttempt manually retries a dead-lettered event (index/RUNBOOK.md
 // §4.3, closing the "no retry now endpoint" gap) — see
 // webhook.Dispatcher.Redrive's doc for exactly what it does. Returns 503 if
 // this deployment has no Dispatcher wired (c.redrive.Dispatcher is nil —

@@ -13,10 +13,10 @@ import (
 	gosmtp "github.com/emersion/go-smtp"
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/logging"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/logging"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // submissionBackend implements go-smtp's Backend for the submission role

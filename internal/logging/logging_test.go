@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/logging"
+	"github.com/envelope-mx/envelope/internal/logging"
 )
 
 func TestJSONLoggerAttachesCorrelationIDFromContext(t *testing.T) {

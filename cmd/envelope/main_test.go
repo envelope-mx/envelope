@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
 )
 
 // TestACMETLSConfigConstructsAValidTLSConfig is acmeTLSConfig's doc-

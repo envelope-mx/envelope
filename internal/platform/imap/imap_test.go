@@ -9,13 +9,13 @@ import (
 	goimap "github.com/emersion/go-imap/v2"
 	"github.com/emersion/go-imap/v2/imapclient"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/directory/memory"
-	envimap "github.com/isaiahiroko/envelope/internal/platform/imap"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/directory/memory"
+	envimap "github.com/envelope-mx/envelope/internal/platform/imap"
 
-	"github.com/isaiahiroko/envelope/internal/platform"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/storage/maildir"
+	"github.com/envelope-mx/envelope/internal/platform"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/storage/maildir"
 )
 
 func startIMAP(t *testing.T, cfg envimap.Config) string {

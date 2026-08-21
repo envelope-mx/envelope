@@ -12,7 +12,7 @@ import (
 
 	"github.com/emersion/go-msgauth/dkim"
 
-	"github.com/isaiahiroko/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter"
 )
 
 func signTestMessage(t *testing.T, key *rsa.PrivateKey, domain, selector string) string {

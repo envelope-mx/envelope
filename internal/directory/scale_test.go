@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/isaiahiroko/envelope/internal/dbtest"
-	"github.com/isaiahiroko/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/dbtest"
+	"github.com/envelope-mx/envelope/internal/directory"
 )
 
 // TestScaleTo100kVhosts is TRD §6.1's "validate vhost count to 100k+ rows
@@ -105,7 +105,7 @@ func TestScaleTo100kVhosts(t *testing.T) {
 
 	// Full pagination sweep — this is the number that would have been
 	// ListVhosts's old unbounded-query cost (measured before this fix at
-	// ~11s for 100k rows; see docs/ENVELOPE.md Phase 6), now paid in
+	// ~11s for 100k rows; see index/ENVELOPE.md Phase 6), now paid in
 	// bounded per-page increments instead of one unbounded call.
 	sweepStart := time.Now()
 	seen := 0

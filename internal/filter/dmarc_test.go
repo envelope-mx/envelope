@@ -6,7 +6,7 @@ import (
 
 	"github.com/emersion/go-msgauth/dmarc"
 
-	"github.com/isaiahiroko/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/filter"
 )
 
 func TestLookupDMARCRecord(t *testing.T) {

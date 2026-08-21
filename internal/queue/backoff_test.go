@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/queue"
 )
 
 func TestFullJitterWithinBounds(t *testing.T) {

@@ -3,7 +3,7 @@ package webhook_test
 import (
 	"testing"
 
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // Known-answer test: RFC 4231 test case 2 (HMAC-SHA256, key "Jefe").

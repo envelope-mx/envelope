@@ -1,4 +1,4 @@
-module github.com/isaiahiroko/envelope
+module github.com/envelope-mx/envelope
 
 go 1.25.3
 

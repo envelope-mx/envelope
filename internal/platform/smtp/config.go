@@ -6,11 +6,11 @@ import (
 	"context"
 	"crypto/tls"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/filter"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/filter"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // RateLimiter is the shared, cross-replica rate-limit contract FR-2.3
@@ -79,7 +79,7 @@ type Config struct {
 
 	// Filter runs the FR-2.4/2.5 accept/quarantine/reject pipeline.
 	// Required for ModeInbound; unused in ModeSubmission (filtering only
-	// concerns inbound acceptance, docs/ENVELOPE.md Phase 4 scope).
+	// concerns inbound acceptance, index/ENVELOPE.md Phase 4 scope).
 	Filter *filter.Pipeline
 
 	// RateLimiter is nil-able: nil disables FR-2.3 rate limiting entirely
@@ -106,7 +106,7 @@ type Config struct {
 
 	// Webhooks fires FR-2.5's message.received event on inbound accept/
 	// quarantine (Phase 4 built the verdict and storage routing but left
-	// this call site unwired — see docs/ENVELOPE.md Phase 4/5), and
+	// this call site unwired — see index/ENVELOPE.md Phase 4/5), and
 	// message.queued once per accepted submission (see
 	// submissionSession.fireQueued). nil disables firing entirely.
 	// Enqueue only durably persists a delivery row (a fast local DB

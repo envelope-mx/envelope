@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/isaiahiroko/envelope/internal/directory"
-	"github.com/isaiahiroko/envelope/internal/queue"
-	"github.com/isaiahiroko/envelope/internal/storage"
-	"github.com/isaiahiroko/envelope/internal/webhook"
+	"github.com/envelope-mx/envelope/internal/directory"
+	"github.com/envelope-mx/envelope/internal/queue"
+	"github.com/envelope-mx/envelope/internal/storage"
+	"github.com/envelope-mx/envelope/internal/webhook"
 )
 
 // httpClient is the shared request plumbing every typed client below
@@ -270,7 +270,7 @@ func (q *QueueClient) Enqueue(ctx context.Context, job queue.Job) error {
 // Dequeue/Complete/Fail/Count: only internal/deliverer calls these, and it
 // isn't part of this migration (it initiates outbound connections rather
 // than accepting untrusted inbound ones, a different NFR-SEC-5 threat
-// profile — see docs/ENVELOPE.md) — it keeps its direct queue.Backend.
+// profile — see index/ENVELOPE.md) — it keeps its direct queue.Backend.
 func (q *QueueClient) Dequeue(ctx context.Context) (queue.Job, bool, error) {
 	return queue.Job{}, false, unsupported("Queue.Dequeue")
 }

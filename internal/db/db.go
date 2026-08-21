@@ -68,7 +68,7 @@ func buildDSN(user, password string) string {
 // without it, GORM's default logger writes every expected "no row yet"
 // lookup (e.g. internal/ratelimit.PostgresLimiter's first-seen-key case) as
 // an ERROR-level line — real noise that looks like an incident and isn't
-// one (docs/RUNBOOK.md §2 names this exact false-alarm risk). This is the
+// one (index/RUNBOOK.md §2 names this exact false-alarm risk). This is the
 // fix for that, not just a description of it.
 func Open(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: gormLogger()})

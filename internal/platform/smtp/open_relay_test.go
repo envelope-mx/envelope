@@ -5,7 +5,7 @@ import (
 
 	gosmtp "github.com/emersion/go-smtp"
 
-	envsmtp "github.com/isaiahiroko/envelope/internal/platform/smtp"
+	envsmtp "github.com/envelope-mx/envelope/internal/platform/smtp"
 )
 
 // TestOpenRelayAudit is NFR-SEC-7's CI-checked audit: "verify the
