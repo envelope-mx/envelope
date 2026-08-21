@@ -85,7 +85,7 @@ jobs:
 
           if [ "${{ matrix.goos }}" = "windows" ]; then
             cp dist/build/envelope.exe "$root/envelope.exe"
-            (cd dist/pkg && zip -r "../../$name.zip" "$name")
+            (cd dist/pkg && zip -r "../$name.zip" "$name")
             echo "asset=$name.zip" >> "$GITHUB_OUTPUT"
           else
             cp dist/build/envelope "$root/envelope"
