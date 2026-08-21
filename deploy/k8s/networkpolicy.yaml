@@ -1,0 +1,158 @@
+# NFR-SEC-5: network segmentation between SMTP-facing processes and the
+# DB/internal API. internal/internalapi closed this NFR's fuller goal —
+# "a compromise of the SMTP-facing process does not directly expose the DB
+# credential store" — for smtp-inbound/smtp-submission/imap specifically:
+# when each of those Deployments below sets its own
+# ENVELOPE_INTERNAL_TOKEN_<ROLE> and ENVELOPE_INTERNAL_API_URL (pointing at
+# a Service exposing the api role's 8081 — see the envelope-to-internal-api
+# NetworkPolicy below) instead of ENVELOPE_DB_*, that pod never opens a Postgres
+# connection at all (cmd/envelope/main.go's needsDirectDB) — a compromise
+# of it can reach only the internal API's small, per-role-scoped operation
+# set (internal/internalapi's roleScopes), not raw SQL. The envelope-to-
+# postgres NetworkPolicy below now matters only for whichever roles still
+# connect directly (api, deliverer, and any SMTP-facing role that hasn't
+# had its ENVELOPE_INTERNAL_TOKEN_<ROLE>/ENVELOPE_DB_* env vars migrated
+# yet — provisioning those is a separate, still-manual step from applying
+# this manifest, the same way roles.sql's own credentials are).
+# deploy/postgres/roles.sql (least-privilege Postgres roles per service)
+# remains the complementary, always-on half of this NFR regardless: even a
+# role still on direct DB access can't run migrations or touch
+# webhook_deliveries with its own credential.
+#
+# Assumes Postgres runs in-cluster with label app=postgres. If Postgres is
+# an external/managed service (RDS, Cloud SQL), this policy's egress rule
+# is a no-op for that traffic — NetworkPolicy only governs pod-to-pod
+# traffic by label selector, not traffic leaving the cluster — and
+# equivalent segmentation has to be enforced by the cloud provider's own
+# network controls (VPC security groups, etc.) instead.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: envelope-default-deny-ingress
+spec:
+  podSelector:
+    matchLabels: { app: envelope }
+  policyTypes: [Ingress]
+  # No ingress rules: deny-by-default. Public-facing ports (smtp-inbound
+  # :25, smtp-submission :587, imap :993, api :8080) are reached from
+  # outside the cluster via a Service/LoadBalancer, which — depending on
+  # the CNI — may or may not be subject to NetworkPolicy at all; add
+  # explicit allow rules here for your cluster's ingress path if your CNI
+  # does enforce it (e.g. an `ingress: - {}` rule scoped to the specific
+  # port, or an allow from your ingress controller's namespace).
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: envelope-to-postgres
+spec:
+  podSelector:
+    matchLabels: { app: postgres }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: { app: envelope }
+      ports:
+        - port: 5432
+          protocol: TCP
+---
+# NFR-SEC-5: restricts internal/internalapi's port (8081, on the api
+# role's own pods) to other envelope-labeled pods only — the same
+# "only this app's own pods, nothing else in the namespace" restriction
+# envelope-to-postgres already applies to 5432. A separate port from the
+# public management API's 8080 (not a route on the same listener)
+# specifically so this rule doesn't have to, and can't accidentally,
+# overlap with whatever ingress path exposes 8080 to the public internet.
+# Pair with a ClusterIP Service (not shown — deployment-specific) named
+# e.g. envelope-api-internal exposing this port, for smtp-inbound/
+# smtp-submission/imap's ENVELOPE_INTERNAL_API_URL to target by stable
+# DNS name instead of a pod IP.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: envelope-to-internal-api
+spec:
+  podSelector:
+    matchLabels: { app: envelope, role: api }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: { app: envelope }
+      ports:
+        - port: 8081
+          protocol: TCP
+---
+# NFR-OBS-1: envelope-default-deny-ingress above has no allow rule for
+# metrics (:9090) any more than it does for the public API's :8080 — found
+# by actually applying this manifest to a real cluster and watching
+# Prometheus-style scraping fail. Unlike :8080 (whose ingress path is
+# operator/CNI-specific and deliberately left to the operator to allow),
+# every deployment needs metrics scraping to work the same way, so this
+# one is enabled here rather than punted: any pod in any namespace may
+# reach :9090 on an envelope-labeled pod. Narrow the `from` to your
+# Prometheus's own namespace if the cluster-wide allowance is broader
+# than you want.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: envelope-metrics-scrape
+spec:
+  podSelector:
+    matchLabels: { app: envelope }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - port: 9090
+          protocol: TCP
+---
+# Only smtp-inbound needs unrestricted internet egress on 25 (peer MTAs'
+# STARTTLS) and the deliverer needs it on 25/587-adjacent MX ports;
+# everything else's egress is DNS + Postgres + (rspamd for smtp-inbound).
+# This is deliberately loose (egress control is secondary defense here,
+# not the primary control) — tightening per-role egress further is a
+# cluster-specific exercise once real destinations (rspamd's actual
+# address, etc.) are known.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: envelope-egress-dns
+spec:
+  podSelector:
+    matchLabels: { app: envelope }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels: { app: postgres }
+      ports:
+        - port: 5432
+          protocol: TCP
+    # NFR-SEC-5: the egress half of envelope-to-internal-api's ingress rule
+    # above — an internal-API-activated smtp-inbound/smtp-submission/imap
+    # pod needs this even though it no longer needs the Postgres rule
+    # right above it.
+    - to:
+        - podSelector:
+            matchLabels: { app: envelope, role: api }
+      ports:
+        - port: 8081
+          protocol: TCP
+    - to: [] # smtp-inbound/deliverer: real internet MTAs on arbitrary IPs
+      ports:
+        - port: 25
+          protocol: TCP
+        - port: 587
+          protocol: TCP
+        - port: 443
+          protocol: TCP # rspamd, if it's reached over HTTPS outside the cluster

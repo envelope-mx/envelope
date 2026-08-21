@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: envelope
+          POSTGRES_PASSWORD: envelope
+          POSTGRES_DB: envelope
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ENVELOPE_TEST_POSTGRES_DSN: "host=127.0.0.1 user=envelope password=envelope dbname=envelope port=5432 sslmode=disable"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.13"
+          cache: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Format check
+        run: |
+          fmt_diff="$(gofmt -l .)"
+          if [ -n "$fmt_diff" ]; then
+            echo "The following files are not gofmt'd:"
+            echo "$fmt_diff"
+            exit 1
+          fi
+
+      # -race and a real Postgres service (above) so this exercises the
+      # same Postgres-backed test suites (internal/directory,
+      # internal/webhook, internal/api, etc. — see README's "Tests"
+      # section) that only run locally when a dev DB is available;
+      # skipping them in CI would mean the concurrency-sensitive paths
+      # (SELECT ... FOR UPDATE SKIP LOCKED in internal/queue/
+      # internal/ratelimit/internal/webhook) never actually get race-
+      # detector coverage.
+      - name: Test
+        run: go test -race -count=1 ./...
+
+  vulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.13"
+          cache: true
+      # NFR-SEC-6: dependency scanning in CI.
+      - run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      - run: govulncheck ./...
+
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # NFR-SEC-6: container image scanning in CI — build the actual
+      # distroless runtime image (deploy/docker/Dockerfile) and scan it,
+      # not just the source tree, so this also catches anything the base
+      # image itself introduces.
+      - name: Build image
+        run: docker build -f deploy/docker/Dockerfile -t envelope:ci .
+      - name: Scan image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: envelope:ci
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"

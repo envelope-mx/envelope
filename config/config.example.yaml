@@ -1,0 +1,3 @@
+app:
+  name: "envelope"
+  env: "{{APP_ENV}}"

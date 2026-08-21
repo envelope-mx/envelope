@@ -1,0 +1,264 @@
+name: Release
+
+# Cutting a `vX.Y.Z` tag builds binaries for every supported platform,
+# builds and pushes a multi-arch Docker image, and publishes a GitHub
+# Release with both attached — the release body documents how to run each
+# asset (see the "Write release notes" step below), so that page is a
+# self-contained getting-started doc, not just a file list.
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re-)release, e.g. v1.2.3"
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  GO_VERSION: "1.25.13"
+
+jobs:
+  binaries:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Resolve tag
+        id: tag
+        run: echo "value=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      # CGO_ENABLED=0 matches deploy/docker/Dockerfile's build — envelope
+      # has no cgo-only dependency on its build path (mattn/go-sqlite3 is
+      # an indirect gorm driver, never imported by cmd/envelope), so a
+      # pure-Go cross-build is enough for every target here.
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          out="envelope"
+          if [ "${{ matrix.goos }}" = "windows" ]; then out="envelope.exe"; fi
+          mkdir -p "dist/build"
+          go build -trimpath -ldflags="-s -w" -o "dist/build/$out" ./cmd/envelope
+
+      # Goose resolves its config directory by walking up from the binary
+      # looking for go.mod (see deploy/docker/Dockerfile's comment on the
+      # same trick), so each archive ships go.mod as that marker plus a
+      # config/ directory alongside the binary — not just the bare binary.
+      - name: Package
+        id: package
+        run: |
+          name="envelope_${{ steps.tag.outputs.value }}_${{ matrix.goos }}_${{ matrix.goarch }}"
+          root="dist/pkg/$name"
+          mkdir -p "$root/config"
+          cp go.mod "$root/go.mod"
+          cp config/config.example.yaml "$root/config/config.yaml"
+          cp README.md "$root/README.md"
+
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            cp dist/build/envelope.exe "$root/envelope.exe"
+            (cd dist/pkg && zip -r "../../$name.zip" "$name")
+            echo "asset=$name.zip" >> "$GITHUB_OUTPUT"
+          else
+            cp dist/build/envelope "$root/envelope"
+            tar -C dist/pkg -czf "dist/$name.tar.gz" "$name"
+            echo "asset=$name.tar.gz" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/${{ steps.package.outputs.asset }}
+          if-no-files-found: error
+
+  docker:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
+
+      - name: Resolve tag
+        id: tag
+        run: echo "value=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tag :latest too, but only for a real release (no `-` suffix) so an
+      # rc/beta tag never clobbers :latest for anyone pulling without a
+      # version pin.
+      - name: Determine image tags
+        id: tags
+        run: |
+          tag="${{ steps.tag.outputs.value }}"
+          {
+            echo "value<<TAGEOF"
+            echo "ghcr.io/${{ github.repository }}:${tag}"
+            if [[ "$tag" != *-* ]]; then
+              echo "ghcr.io/${{ github.repository }}:latest"
+            fi
+            echo "TAGEOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/docker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tags.outputs.value }}
+
+  release:
+    name: Publish GitHub release
+    needs: [binaries, docker]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
+
+      - name: Resolve tag
+        id: tag
+        run: echo "value=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: binary-*
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum -- * > checksums.txt
+
+      - name: Write release notes
+        env:
+          TAG: ${{ steps.tag.outputs.value }}
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          cat > release-notes.md <<NOTES
+          Self-hosted, API-first, multi-tenant email platform. See the
+          [README](https://github.com/${{ github.repository }}/blob/${TAG}/README.md)
+          for the full API surface, \`--roles\` breakdown, and required
+          environment variables (\`ENVELOPE_MASTER_KEY\`, \`ENVELOPE_DB_*\`).
+
+          ## Binaries
+
+          Each \`.tar.gz\`/\`.zip\` below contains the \`envelope\` binary
+          plus \`go.mod\` and \`config/config.yaml\` — keep all three
+          together as extracted. (\`go.mod\` is a marker file, not a build
+          input: Envelope's Goose-based config loader finds its config
+          directory by walking up from the binary's own path looking for
+          \`go.mod\`, so it must stay alongside the binary even though this
+          is a pre-built release, not source.)
+
+          **Linux / macOS** — \`envelope_${TAG}_<os>_<arch>.tar.gz\`
+          (\`linux_amd64\`, \`linux_arm64\`, \`darwin_amd64\`, \`darwin_arm64\`):
+
+          \`\`\`bash
+          tar -xzf envelope_${TAG}_linux_amd64.tar.gz
+          cd envelope_${TAG}_linux_amd64
+          export ENVELOPE_MASTER_KEY="\$(openssl rand -base64 32)"
+          export ENVELOPE_DB_HOST=127.0.0.1 ENVELOPE_DB_PASSWORD=envelope
+          ./envelope --roles=api
+          curl localhost:8080/health
+          \`\`\`
+
+          **Windows** — \`envelope_${TAG}_windows_amd64.zip\`:
+
+          \`\`\`powershell
+          Expand-Archive envelope_${TAG}_windows_amd64.zip
+          cd envelope_${TAG}_windows_amd64
+          \$env:ENVELOPE_MASTER_KEY = "<output of: openssl rand -base64 32>"
+          \$env:ENVELOPE_DB_HOST = "127.0.0.1"; \$env:ENVELOPE_DB_PASSWORD = "envelope"
+          .\envelope.exe --roles=api
+          \`\`\`
+
+          Standard ports (25/587/993) need root/CAP_NET_BIND_SERVICE either
+          way — see the README's Development section for unprivileged-port
+          overrides for local use.
+
+          **Verify a download** against \`checksums.txt\`:
+
+          \`\`\`bash
+          sha256sum -c checksums.txt --ignore-missing
+          \`\`\`
+
+          ## Docker image
+
+          Multi-arch (\`linux/amd64\`, \`linux/arm64\`), published to GHCR.
+          \`:latest\` tracks the newest non-prerelease tag; pin \`:${TAG}\`
+          for anything reproducible.
+
+          \`\`\`bash
+          docker pull ${IMAGE}:${TAG}
+          docker run --rm -p 8080:8080 \\
+            -e ENVELOPE_DB_HOST=host.docker.internal -e ENVELOPE_DB_PORT=5432 -e ENVELOPE_DB_PASSWORD=envelope \\
+            -e ENVELOPE_MASTER_KEY="\$(openssl rand -base64 32)" \\
+            ${IMAGE}:${TAG}
+          curl localhost:8080/health
+          \`\`\`
+
+          Needs Postgres reachable from the container —
+          \`host.docker.internal\` resolves to the host on Docker Desktop; on
+          native Linux Docker, add
+          \`--add-host=host.docker.internal:host-gateway\` or point
+          \`ENVELOPE_DB_HOST\` at a real Postgres service instead. The image
+          already bundles \`config/config.yaml\` (from
+          \`config/config.example.yaml\`) — override individual settings via
+          \`ENVELOPE_*\` env vars.
+
+          ## Both need Postgres + a master key
+
+          Every binary/image above still needs a reachable Postgres
+          instance and \`ENVELOPE_MASTER_KEY\` set (encrypts DKIM keys and
+          webhook secrets at rest — the process won't boot without it).
+          \`--roles\` selects which of \`api\`, \`smtp-inbound\`,
+          \`smtp-submission\`, \`imap\`, \`deliverer\` a process runs (all
+          five by default); webhook dispatch rides along with \`api\`.
+          NOTES
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.value }}
+          name: ${{ steps.tag.outputs.value }}
+          body_path: release-notes.md
+          generate_release_notes: true
+          files: |
+            dist/*

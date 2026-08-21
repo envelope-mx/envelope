@@ -1,0 +1,350 @@
+# Per-role Deployment shapes (TRD G7, §4, §8 M1), one Deployment per
+# --roles value (cmd/envelope/main.go's allRoles) so each role scales
+# independently in the Kubernetes case. webhook dispatch has no
+# Deployment of its own — it's a background instance bundled into the
+# `api` role's process (see docs/ENVELOPE.md Phase 5's role-mapping note),
+# so scaling envelope-api scales webhook delivery capacity with it.
+#
+# replicas: 2 encodes NFR-AV-1 (no single-role replica is a single point
+# of failure); the PodDisruptionBudgets below extend that to voluntary
+# disruptions (node drains, rolling updates) specifically, not just
+# steady-state redundancy.
+#
+# Every Deployment expects a Secret named `envelope-secrets` with keys:
+#   ENVELOPE_DB_PASSWORD    — Postgres password
+#   ENVELOPE_MASTER_KEY     — TRD R1/NFR-SEC-3 at-rest encryption key
+#                              (openssl rand -base64 32); losing this
+#                              makes every encrypted DKIM key and webhook
+#                              secret permanently undecryptable, so it
+#                              needs the same backup discipline as the
+#                              database itself, not just Kubernetes's own
+#                              Secret storage.
+#   ENVELOPE_API_ADMIN_TOKEN — FR-5.2 bootstrap admin credential (api role only)
+# and a ConfigMap named `envelope-config` with non-secret settings
+# (ENVELOPE_DB_HOST, ENVELOPE_DOMAIN, etc. — see .env.example for the
+# full list). Neither is defined here: their values are deployment-
+# specific (which Postgres, which domain), unlike the shapes below.
+#
+# NFR-SEC-5 (deploy/postgres/roles.sql): each Deployment below already
+# satisfies internal/db.DSNForRole's one-role-per-process precondition (a
+# real, activatable shape, not aspirational), but `envelope-secrets`
+# doesn't yet carry the per-role keys (ENVELOPE_DB_USER_API/PASSWORD_API,
+# ENVELOPE_DB_USER_SMTP_INBOUND/PASSWORD_SMTP_INBOUND, etc. — see
+# .env.example for the full set) that would actually activate a
+# differentiated credential per Deployment instead of the shared one. This
+# is provisioning (running roles.sql, then adding those keys to the
+# Secret, ideally as a distinct per-role Secret rather than piling every
+# role's credential into one shared one an over-privileged reader could
+# scrape), not a code gap — named here so it isn't silently assumed done.
+#
+# NFR-SEC-5, fuller goal (internal/internalapi): envelope-smtp-inbound/
+# -smtp-submission/-imap below can instead skip a direct Postgres
+# credential entirely — set ENVELOPE_INTERNAL_TOKEN_<ROLE> (that
+# Deployment's own) and ENVELOPE_INTERNAL_API_URL (a ClusterIP Service
+# exposing envelope-api's containerPort 8081, not defined in this file —
+# see deploy/k8s/networkpolicy.yaml's envelope-to-internal-api policy for
+# the matching NetworkPolicy) instead of ENVELOPE_DB_*/
+# ENVELOPE_DB_USER_<ROLE> for that Deployment specifically, and remove
+# ENVELOPE_DB_PASSWORD from its own env entirely. envelope-api needs every
+# activated role's token (ENVELOPE_INTERNAL_TOKEN_SMTP_INBOUND, etc.) to
+# authorize incoming internal API calls, regardless of which SMTP-facing
+# Deployments have actually migrated to using it. Same provisioning-not-
+# code-gap framing as the paragraph above: nothing here does this for you
+# automatically, and a Deployment that hasn't set these keeps working
+# exactly as before, direct-DB-credential and all.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envelope-api
+  labels:
+    app: envelope
+    role: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: envelope
+      role: api
+  template:
+    metadata:
+      labels:
+        app: envelope
+        role: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 45 # NFR-AV-4: platform.App's own ShutdownTimeout is 30s; leave headroom
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: envelope
+          image: envelope:latest
+          command: ["/app/envelope", "--roles=api"]
+          envFrom:
+            - configMapRef: { name: envelope-config }
+            - secretRef: { name: envelope-secrets }
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: internal-api
+              containerPort: 8081
+            - name: metrics
+              containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envelope-smtp-inbound
+  labels:
+    app: envelope
+    role: smtp-inbound
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: envelope
+      role: smtp-inbound
+  template:
+    metadata:
+      labels:
+        app: envelope
+        role: smtp-inbound
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: envelope
+          image: envelope:latest
+          command: ["/app/envelope", "--roles=smtp-inbound"]
+          envFrom:
+            - configMapRef: { name: envelope-config }
+            - secretRef: { name: envelope-secrets }
+          ports:
+            - name: smtp
+              containerPort: 25
+            - name: metrics
+              containerPort: 9090
+          readinessProbe:
+            tcpSocket:
+              port: smtp
+          livenessProbe:
+            tcpSocket:
+              port: smtp
+          resources:
+            requests: { cpu: 200m, memory: 128Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envelope-smtp-submission
+  labels:
+    app: envelope
+    role: smtp-submission
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: envelope
+      role: smtp-submission
+  template:
+    metadata:
+      labels:
+        app: envelope
+        role: smtp-submission
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: envelope
+          image: envelope:latest
+          command: ["/app/envelope", "--roles=smtp-submission"]
+          envFrom:
+            - configMapRef: { name: envelope-config }
+            - secretRef: { name: envelope-secrets }
+          ports:
+            - name: submission
+              containerPort: 587
+            - name: metrics
+              containerPort: 9090
+          readinessProbe:
+            tcpSocket:
+              port: submission
+          livenessProbe:
+            tcpSocket:
+              port: submission
+          resources:
+            requests: { cpu: 200m, memory: 128Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envelope-imap
+  labels:
+    app: envelope
+    role: imap
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: envelope
+      role: imap
+  template:
+    metadata:
+      labels:
+        app: envelope
+        role: imap
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: envelope
+          image: envelope:latest
+          command: ["/app/envelope", "--roles=imap"]
+          envFrom:
+            - configMapRef: { name: envelope-config }
+            - secretRef: { name: envelope-secrets }
+          ports:
+            - name: imaps
+              containerPort: 993
+            - name: metrics
+              containerPort: 9090
+          readinessProbe:
+            tcpSocket:
+              port: imaps
+          livenessProbe:
+            tcpSocket:
+              port: imaps
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 256Mi }
+---
+# Outbound deliverer (TRD §4 role 4, docs/ENVELOPE.md Phase 5) — headless,
+# no protocol listener, so readiness/liveness use the metrics endpoint
+# (an internal/platform.HeadlessApp instance responding here is as close
+# to "this role's background loop is alive" as there is to probe).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envelope-deliverer
+  labels:
+    app: envelope
+    role: deliverer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: envelope
+      role: deliverer
+  template:
+    metadata:
+      labels:
+        app: envelope
+        role: deliverer
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: envelope
+          image: envelope:latest
+          command: ["/app/envelope", "--roles=deliverer"]
+          envFrom:
+            - configMapRef: { name: envelope-config }
+            - secretRef: { name: envelope-secrets }
+          ports:
+            - name: metrics
+              containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+          resources:
+            requests: { cpu: 200m, memory: 128Mi }
+            limits: { memory: 256Mi }
+---
+# NFR-AV-1, extended to voluntary disruptions specifically: a node drain
+# or rolling update must never be able to take every replica of a role
+# down at once. minAvailable: 1 with replicas: 2 means at most one
+# replica may be evicted at a time per role.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: envelope-api-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: envelope, role: api }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: envelope-smtp-inbound-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: envelope, role: smtp-inbound }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: envelope-smtp-submission-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: envelope, role: smtp-submission }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: envelope-imap-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: envelope, role: imap }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: envelope-deliverer-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: envelope, role: deliverer }
